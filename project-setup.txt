@@ -1,0 +1,41 @@
+az account list-locations \
+  --query "[].{Name: name, DisplayName: displayName}" \
+  --output table
+
+
+
+az configure --defaults location=westeurope
+
+resourceSuffix=$RANDOM
+webName="tailspin-space-game-web-${resourceSuffix}"
+leaderboardName="tailspin-space-game-leaderboard-${resourceSuffix}"
+storageName="tailspinspacegame${resourceSuffix}"
+rgName='tailspin-space-game-rg'
+planName='tailspin-space-game-asp'
+
+az group create --name $rgName
+az appservice plan create \
+  --name $planName \
+  --resource-group $rgName \
+  --sku B1
+  az webapp create \
+  --name $webName \
+  --resource-group $rgName \
+  --plan $planName
+  az storage account create \
+  --name $storageName \
+  --resource-group $rgName \
+  --sku Standard_LRS
+  az functionapp create \
+  --name $leaderboardName \
+  --resource-group $rgName \
+  --storage-account $storageName \
+  --consumption-plan-location <region>
+  az webapp list \
+  --resource-group $rgName \
+  --query "[].{hostName: defaultHostName, state: state}" \
+  --output table
+  az functionapp list \
+  --resource-group $rgName \
+  --query "[].{hostName: defaultHostName, state: state}" \
+  --output table
